@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+    integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+  <title>twint UI</title>
+
+</head>
+
+<body class="container">
+  <h1 style="text-align: center;">twint UI</h1>
+  <div class="row">
+    <h4 style="margin-bottom:20px">Submit a new scraping request</h4>
+  </div>
+  <div class="row">
+    <form id="queryform" class="col form-inline">
+      <div class="form-group mb-2 mr-sm-2">
+        <label for="query">Search query</label>
+        <input type="text" class="form-control" id="query" name="query" required aria-describedby="queryHelp">
+      </div>
+      <div class="form-group mb-2 mr-sm-2">
+        <label for="since">Since</label>
+        <input type="text" class="form-control" id="since" name="since" placeholder="2006-03-21">
+      </div>
+      <div class="form-group mb-2 mr-sm-2">
+        <label for="until">Until</label>
+        <input type="text" class="form-control" id="until" name="until" placeholder="2020-06-04">
+      </div>
+      <div class="form-group mb-2 mr-sm-2">
+        <label for="limit">Limit</label>
+        <input type="text" class="form-control" id="limit" name="limit">
+      </div>
+      <button type="submit" id="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+
+  <h3>Datasets:</h3>
+  <div id="datasets" class="card-deck row row-cols-1 row-cols-md-2">
+
+  </div>
+
+
+
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+    integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+    crossorigin="anonymous"></script>
+  
+  <script>
+    window.ws = new WebSocket('ws://localhost:8081/ws');
+    ws.onopen = function() {
+      ws.send(JSON.stringify({request_type: "list"}));
+      setInterval(function() {
+        ws.send(JSON.stringify({request_type: "list"}));
+      }, 10000)
+    };
+    ws.onmessage = function (evt) {
+      var data = JSON.parse(evt.data);
+      console.log(data);
+      if (data.error) {
+        console.error(data);
+        return;
+      }
+      if (data.request_type == "list") {
+        for (f in data) {
+          if (f == "request_type" || f == "total") continue;
+          var f_id = f.replace(/ /g, "_");
+          if (!$("#" + f_id).length) {
+            $("#datasets").prepend(`
+              <div class="col mb-4">
+                <div id="${f_id}" class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">${f}</h5>
+                    <p class="card-text">Number of tweets: <span id="n_tweets">${data[f]}</span></p>
+                    <a href="http://localhost:8081/csvs/${f}.csv" class="btn btn-primary">Download CSV</a>
+                  </div>
+                </div>
+              </div>`)
+          } else {
+            $("#" + f_id + " #n_tweets").text(data[f]);
+          }
+        }
+      }
+    };
+    ws.onerror = function(evt) {
+      console.error(evt);
+    };
+    ws.onclose = function(evt) {
+      console.error(evt);
+    }
+
+    $("#queryform").submit(function(e) {
+      e.preventDefault();
+      var query = $("#query").val()
+      if ($("#since").val().length) {
+        query += " since:" + $("#since").val()
+      }
+      if ($("#until").val().length) {
+        query += " until:" + $("#until").val()
+      }
+      ws.send(JSON.stringify({
+        request_type: "run_twint",
+        query: query,
+        limit: $("#limit").val()
+      }))
+      ws.send(JSON.stringify({request_type: "list"}));
+    })
+  </script>
+</body>
+
+</html>
