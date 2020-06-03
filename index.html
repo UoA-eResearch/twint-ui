@@ -62,7 +62,7 @@
     crossorigin="anonymous"></script>
   
   <script>
-    window.ws = new WebSocket('ws://localhost:8081/ws');
+    window.ws = new WebSocket('wss://docker.auckland-cer.cloud.edu.au/twitter/ws');
     ws.onopen = function() {
       ws.send(JSON.stringify({request_type: "list"}));
       setInterval(function() {
@@ -87,7 +87,7 @@
                   <div class="card-body">
                     <h5 class="card-title">${f}</h5>
                     <p class="card-text">Number of tweets: <span id="n_tweets">${data[f]}</span></p>
-                    <a href="http://localhost:8081/csvs/${f}.csv" class="btn btn-primary">Download CSV</a>
+                    <a href="http://docker.auckland-cer.cloud.edu.au/twitter/csvs/${f}.csv" class="btn btn-primary">Download CSV</a>
                   </div>
                 </div>
               </div>`)
