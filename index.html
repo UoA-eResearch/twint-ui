@@ -86,13 +86,13 @@
                 <div id="${f_id}" class="card">
                   <div class="card-body">
                     <h5 class="card-title">${f}</h5>
-                    <p class="card-text">Number of tweets: <span id="n_tweets">${data[f]}</span></p>
+                    <p class="card-text">Number of tweets: <span id="n_tweets">${data[f].toLocaleString()}</span></p>
                     <a href="http://docker.auckland-cer.cloud.edu.au/twitter/csvs/${f}.csv" class="btn btn-primary">Download CSV</a>
                   </div>
                 </div>
               </div>`)
           } else {
-            $("#" + f_id + " #n_tweets").text(data[f]);
+            $("#" + f_id + " #n_tweets").text(data[f].toLocaleString());
           }
         }
       }
