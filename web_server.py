@@ -65,8 +65,11 @@ def handle_ws():
         abort(400, 'Expected WebSocket request.')
     while True:
         message = wsock.receive()
+        if not message:
+            return
         try:
             params = json.loads(message)
+            assert type(params) == dict
         except:
             wsock.send('{"error": "unable to parse JSON"}')
             continue
@@ -107,6 +110,8 @@ def handle_ws():
                 wsock.send(subprocess.run(["tail", f"logs/{filename}"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True).stdout)
             else:
                 wsock.send('{"error": "Unknown request type"}')
+        except WebSocketError as e:
+            print(e)
         except Exception as e:
             wsock.send(e.message)
 
