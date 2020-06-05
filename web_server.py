@@ -10,6 +10,7 @@ import datetime
 import subprocess
 from pathvalidate import sanitize_filename
 import json
+import urllib
 
 from gevent.pywsgi import WSGIServer
 from geventwebsocket import WebSocketError
@@ -32,6 +33,7 @@ def index():
 
 @app.get("/csvs/<filename>")
 def get_csv(filename):
+    filename = urllib.parse.unquote_plus(filename)
     return static_file(filename, root='csvs')
 
 @app.post("/")
