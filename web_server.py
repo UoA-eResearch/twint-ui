@@ -80,7 +80,7 @@ def handle_ws():
             if request_type == "run_twint":
                 query = params.get("query")
                 filename = sanitize_filename(query)
-                args = ["twint", "-s", query, "--csv", "--output", f"csvs/{filename}.csv"]
+                args = ["twint", "-s", query, "--csv", "--output", f"csvs/{filename}.csv", "--proxy-type", "tor"]
                 if params.get("limit"):
                     args.extend(["--limit", str(int(params.get("limit")))])
                 with open(f"logs/{filename}.txt", "w") as logfile:
