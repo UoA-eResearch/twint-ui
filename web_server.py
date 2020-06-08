@@ -80,11 +80,19 @@ def handle_ws():
             if request_type == "run_twint":
                 query = params.get("query")
                 filename = sanitize_filename(query)
-                args = ["twint", "-s", query, "--csv", "--output", f"csvs/{filename}.csv", "--proxy-host", "tor"]
+                args = ["/bin/bash", "run_twint.sh", query, filename]
+                if params.get("since"):
+                    args.append(params.get("since"))
+                else:
+                    args.append("2006-03-21")
+                if params.get("until"):
+                    args.append(params.get("until"))
+                else:
+                    args.append(str(datetime.date.today()))
                 if params.get("limit"):
-                    args.extend(["--limit", str(int(params.get("limit")))])
+                    args.append("--limit " + str(int(params.get("limit"))))
                 print(args)
-                subprocess.Popen(args, stdout=open(f"logs/{filename}.txt", "w"), start_new_session=True)
+                subprocess.Popen(args, start_new_session=True)
                 wsock.send(json.dumps({"request_type": request_type, "filename": filename}))
             elif request_type == "list":
                 proc = subprocess.run("cd logs && wc -l *", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
