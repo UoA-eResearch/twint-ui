@@ -11,6 +11,7 @@ import subprocess
 from pathvalidate import sanitize_filename
 import json
 import urllib
+import psutil
 
 from gevent.pywsgi import WSGIServer
 from geventwebsocket import WebSocketError
@@ -117,6 +118,13 @@ def handle_ws():
             elif request_type == "tail":
                 filename = sanitize_filename(params.get("tail"))
                 wsock.send(subprocess.run(["tail", f"logs/{filename}"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True).stdout)
+            elif request_type == "ps":
+                procs = [p.cmdline()[3] for p in psutil.process_iter() if "run_twint.sh" in p.cmdline()]
+                results = {
+                    "request_type": request_type,
+                    "running": procs
+                }
+                wsock.send(json.dumps(results))
             else:
                 wsock.send('{"error": "Unknown request type"}')
         except WebSocketError as e:

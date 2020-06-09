@@ -62,8 +62,10 @@
     //window.ws = new WebSocket('ws://localhost:8081/ws');
     ws.onopen = function() {
       ws.send(JSON.stringify({request_type: "list"}));
+      ws.send(JSON.stringify({request_type: "ps"}));
       setInterval(function() {
         ws.send(JSON.stringify({request_type: "list"}));
+        ws.send(JSON.stringify({request_type: "ps"}));
       }, 10000)
     };
     ws.onmessage = function (evt) {
@@ -74,6 +76,7 @@
         return;
       }
       if (data.request_type == "list") {
+        window.datasets = data;
         for (f in data) {
           if (f == "request_type" || f == "total") continue;
           var f_id = f.replace(/ /g, "_").replace(/@/g, "at_");
@@ -83,13 +86,22 @@
                 <div id="${f_id}" class="card">
                   <div class="card-body">
                     <h5 class="card-title">${f}</h5>
-                    <p class="card-text">Number of tweets: <span id="n_tweets">${data[f].toLocaleString()}</span></p>
+                    <p class="card-text">Number of tweets: <span id="n_tweets">${data[f].toLocaleString()}</span>. <span id="run_status"></span></p>
                     <a href="http://docker.auckland-cer.cloud.edu.au/twitter/csvs/${f}.csv" class="btn btn-primary">Download CSV</a>
                   </div>
                 </div>
               </div>`)
           } else {
             $("#" + f_id + " #n_tweets").text(data[f].toLocaleString());
+          }
+        }
+      } else if (data.request_type == "ps") {
+        for (f in window.datasets) {
+          var f_id = f.replace(/ /g, "_").replace(/@/g, "at_");
+          if (data.running.includes(f)) {
+            $(`#${f_id} #run_status`).text("Running");
+          } else {
+            $(`#${f_id} #run_status`).text("");
           }
         }
       }
@@ -111,6 +123,7 @@
         until: $("#until").val()
       }))
       ws.send(JSON.stringify({request_type: "list"}));
+      ws.send(JSON.stringify({request_type: "ps"}));
     })
   </script>
 </body>

@@ -3,3 +3,4 @@ twint
 pathvalidate
 gevent-websocket
 gunicorn
+psutil
