@@ -76,7 +76,7 @@
       if (data.request_type == "list") {
         for (f in data) {
           if (f == "request_type" || f == "total") continue;
-          var f_id = f.replace(/ /g, "_");
+          var f_id = f.replace(/ /g, "_").replace(/@/g, "at_");
           if (!$("#" + f_id).length) {
             $("#datasets").prepend(`
               <div class="col mb-4">
