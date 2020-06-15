@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
     integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
   <title>twint UI</title>
 
 </head>
@@ -63,6 +65,7 @@
     ws.onopen = function() {
       ws.send(JSON.stringify({request_type: "list"}));
       ws.send(JSON.stringify({request_type: "ps"}));
+      ws.send(JSON.stringify({request_type: "dailycounts"}))
       setInterval(function() {
         ws.send(JSON.stringify({request_type: "list"}));
         ws.send(JSON.stringify({request_type: "ps"}));
@@ -87,6 +90,7 @@
                   <div class="card-body">
                     <h5 class="card-title">${f}</h5>
                     <p class="card-text">Number of tweets: <span id="n_tweets">${data[f].toLocaleString()}</span>. <span id="run_status"></span></p>
+                    <div id="plot"></div>
                     <a href="http://docker.auckland-cer.cloud.edu.au/twitter/csvs/${f}.csv" class="btn btn-primary">Download CSV</a>
                   </div>
                 </div>
@@ -103,6 +107,30 @@
           } else {
             $(`#${f_id} #run_status`).text("");
           }
+        }
+      } else if (data.request_type == "dailycounts") {
+        for (f in window.datasets) {
+          var keys = Object.keys(data).filter(e => e.startsWith(f + "/"));
+          if (keys.length == 0) continue;
+          var x = keys.map(k => k.split("/")[1].split(".")[0]);
+          var y = keys.map(k => data[k]);
+          console.log(f, x, y);
+          var plotData = [
+            {
+              x: x,
+              y: y,
+              type: 'bar'
+            }
+          ];
+          var f_id = f.replace(/ /g, "_").replace(/@/g, "at_");
+          var container = $(`#${f_id} #plot`)[0];
+          var layout = {
+            title: "Tweets per day for " + f,
+            width: 500,
+            height: 500,
+          }
+
+          Plotly.newPlot(container, plotData, layout);
         }
       }
     };
