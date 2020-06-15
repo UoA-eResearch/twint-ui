@@ -132,4 +132,5 @@ dmypy.json
 # App specific
 csvs
 logs
+daily.txt
 

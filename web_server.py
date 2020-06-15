@@ -125,6 +125,16 @@ def handle_ws():
                     "running": procs
                 }
                 wsock.send(json.dumps(results))
+            elif request_type == "dailycounts":
+                with open("daily.txt") as f:
+                    lines = f.readlines()
+                results = {
+                    "request_type": request_type
+                }
+                for l in lines:
+                    bits = l.strip().rsplit(maxsplit=1)
+                    results[bits[0]] = int(bits[1])
+                wsock.send(json.dumps(results))
             else:
                 wsock.send('{"error": "Unknown request type"}')
         except WebSocketError as e:
