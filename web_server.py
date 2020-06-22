@@ -133,7 +133,8 @@ def handle_ws():
                 }
                 for l in lines:
                     bits = l.strip().rsplit(maxsplit=1)
-                    results[bits[0]] = int(bits[1])
+                    if len(bits) == 2:
+                      results[bits[0]] = int(bits[1])
                 wsock.send(json.dumps(results))
             else:
                 wsock.send('{"error": "Unknown request type"}')
@@ -146,7 +147,7 @@ def handle_ws():
 if __name__ == "__main__":
     app.run(
         host='localhost',
-        port=8081,
+        port=8082,
         server='gunicorn',
         workers=8,
         worker_class="geventwebsocket.gunicorn.workers.GeventWebSocketWorker",
