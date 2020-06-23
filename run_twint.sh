@@ -24,7 +24,7 @@ do
 	else
         	echo "Running $query for $bd"
 	        twint -s "$query" --csv --output "csvs/$filename/$bd.csv" --since "$bd" --until "$ed" --proxy-host tor >> "logs/$filename.txt"
-	        sed 1d "csvs/$filename/$bd.csv" >> "csvs/$filename.csv"
 	fi
+	sed 1d "csvs/$filename/$bd.csv" >> "csvs/$filename.csv"
         end=$(date -d"$end - 1 day" +"%Y%m%d")
 done
