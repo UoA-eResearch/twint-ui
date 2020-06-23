@@ -19,8 +19,12 @@ while [[ $start -lt $end ]]
 do
         bd=$(date -d"$end - 1 day" +"%Y-%m-%d")
         ed=$(date -d"$end" +"%Y-%m-%d")
-        echo "Running $query for $bd"
-        twint -s "$query" --csv --output "csvs/$filename/$bd.csv" --since "$bd" --until "$ed" --proxy-host tor >> "logs/$filename.txt"
-        sed 1d "csvs/$filename/$bd.csv" >> "csvs/$filename.csv"
+	if [ -f "csvs/$filename/$bd.csv" ]; then
+		echo "$bd already done, skipping"
+	else
+        	echo "Running $query for $bd"
+	        twint -s "$query" --csv --output "csvs/$filename/$bd.csv" --since "$bd" --until "$ed" --proxy-host tor >> "logs/$filename.txt"
+	        sed 1d "csvs/$filename/$bd.csv" >> "csvs/$filename.csv"
+	fi
         end=$(date -d"$end - 1 day" +"%Y%m%d")
 done
