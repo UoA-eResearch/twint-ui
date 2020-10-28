@@ -82,7 +82,7 @@
         window.datasets = data;
         for (f in data) {
           if (f == "request_type" || f == "total") continue;
-          var f_id = f.replace(/ /g, "_").replace(/@/g, "at_");
+          var f_id = f.replace(/ /g, "_").replace(/@/g, "at_").replace(/#/g, "hash_");
           if (!$("#" + f_id).length) {
             $("#datasets").prepend(`
               <div class="col mb-4">
