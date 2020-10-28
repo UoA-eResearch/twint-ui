@@ -60,6 +60,9 @@
     crossorigin="anonymous"></script>
   
   <script>
+    function sanitize_id(filename) {
+      return f.replace(/ /g, "_").replace(/@/g, "at_").replace(/#/g, "hash_");
+    }
     window.ws = new WebSocket('wss://wave.storm-surge.cloud.edu.au/twitter/ws');
     //window.ws = new WebSocket('ws://localhost:8081/ws');
     ws.onopen = function() {
@@ -82,7 +85,7 @@
         window.datasets = data;
         for (f in data) {
           if (f == "request_type" || f == "total") continue;
-          var f_id = f.replace(/ /g, "_").replace(/@/g, "at_").replace(/#/g, "hash_");
+          var f_id = sanitize_id(f);
           if (!$("#" + f_id).length) {
             $("#datasets").prepend(`
               <div class="col mb-4">
@@ -101,7 +104,7 @@
         }
       } else if (data.request_type == "ps") {
         for (f in window.datasets) {
-          var f_id = f.replace(/ /g, "_").replace(/@/g, "at_");
+          var f_id = sanitize_id(f);
           if (data.running.includes(f)) {
             $(`#${f_id} #run_status`).text("Running");
           } else {
@@ -122,7 +125,7 @@
               type: 'bar'
             }
           ];
-          var f_id = f.replace(/ /g, "_").replace(/@/g, "at_");
+          var f_id = sanitize_id(f);
           var container = $(`#${f_id} #plot`)[0];
           var layout = {
             title: "Tweets per day for " + f,
